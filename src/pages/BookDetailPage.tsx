@@ -1,0 +1,140 @@
+import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Book, Calendar, Tag, Hash } from 'lucide-react';
+import { useBook } from '@/hooks/useBooks';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+
+export default function BookDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const { data: book, isLoading, error } = useBook(id || '');
+
+  if (isLoading) {
+    return (
+      <div className="page-container">
+        <div className="flex flex-col md:flex-row gap-8">
+          <Skeleton className="w-full md:w-80 aspect-[2/3] rounded-lg" />
+          <div className="flex-1 space-y-4">
+            <Skeleton className="h-10 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !book) {
+    return (
+      <div className="page-container text-center py-16">
+        <h2 className="text-2xl font-bold text-foreground mb-4">Book Not Found</h2>
+        <p className="text-muted-foreground mb-6">The book you're looking for doesn't exist or has been removed.</p>
+        <Link to="/search">
+          <Button>Browse Books</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const isAvailable = book.available_quantity > 0;
+
+  return (
+    <div className="page-container">
+      <Link 
+        to="/search" 
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Browse
+      </Link>
+
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+        {/* Book Cover */}
+        <div className="w-full md:w-80 flex-shrink-0">
+          <div className="book-cover relative">
+            {book.cover_url ? (
+              <img 
+                src={book.cover_url} 
+                alt={book.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-secondary">
+                <Book className="w-20 h-20 text-muted-foreground" />
+              </div>
+            )}
+            {book.is_new_arrival && (
+              <span className="badge-new absolute top-4 right-4">New Arrival</span>
+            )}
+          </div>
+        </div>
+
+        {/* Book Details */}
+        <div className="flex-1">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">
+            {book.title}
+          </h1>
+          <p className="text-xl text-muted-foreground mb-4">by {book.author}</p>
+
+          <div className="flex flex-wrap gap-4 mb-6">
+            <span className={`text-lg font-medium ${isAvailable ? 'text-success' : 'text-destructive'}`}>
+              {isAvailable ? `${book.available_quantity} of ${book.quantity} available` : 'Currently Unavailable'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            {book.isbn && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Hash className="h-5 w-5" />
+                <div>
+                  <p className="text-xs uppercase tracking-wide">ISBN</p>
+                  <p className="text-foreground font-medium">{book.isbn}</p>
+                </div>
+              </div>
+            )}
+            {book.category && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Tag className="h-5 w-5" />
+                <div>
+                  <p className="text-xs uppercase tracking-wide">Category</p>
+                  <p className="text-foreground font-medium">{book.category.name}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Calendar className="h-5 w-5" />
+              <div>
+                <p className="text-xs uppercase tracking-wide">Added</p>
+                <p className="text-foreground font-medium">
+                  {new Date(book.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Book className="h-5 w-5" />
+              <div>
+                <p className="text-xs uppercase tracking-wide">Times Borrowed</p>
+                <p className="text-foreground font-medium">{book.times_borrowed}</p>
+              </div>
+            </div>
+          </div>
+
+          {book.description && (
+            <div>
+              <h2 className="text-xl font-serif font-semibold text-foreground mb-3">Description</h2>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {book.description}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-8 p-4 bg-secondary/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              📚 To borrow this book, please visit the library with your student ID card.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
