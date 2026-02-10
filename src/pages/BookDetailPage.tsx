@@ -1,12 +1,54 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Book, Calendar, Tag, Hash } from 'lucide-react';
+import { ArrowLeft, Book, Calendar, Tag, Hash, SendHorizontal, Clock } from 'lucide-react';
 import { useBook } from '@/hooks/useBooks';
+import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: book, isLoading, error } = useBook(id || '');
+  const { user, isStudent, studentInfo } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Check if student already has a pending request for this book
+  const { data: existingRequest } = useQuery({
+    queryKey: ['my-request-for-book', id, studentInfo?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('borrow_requests')
+        .select('id, status')
+        .eq('student_id', studentInfo!.id)
+        .eq('book_id', id!)
+        .eq('status', 'pending' as any)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!studentInfo && !!id,
+  });
+
+  const requestMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('borrow_requests').insert({
+        student_id: studentInfo!.id,
+        book_id: id!,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-request-for-book', id] });
+      queryClient.invalidateQueries({ queryKey: ['my-borrow-requests'] });
+      toast({ title: 'Request submitted!', description: 'The librarian will review your request.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -128,10 +170,51 @@ export default function BookDetailPage() {
             </div>
           )}
 
-          <div className="mt-8 p-4 bg-secondary/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              📚 To borrow this book, please visit the library with your student ID card.
-            </p>
+          {/* Borrow Request Section */}
+          <div className="mt-8">
+            {isStudent && isAvailable ? (
+              existingRequest ? (
+                <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-warning flex-shrink-0" />
+                  <p className="text-sm text-foreground">
+                    You already have a pending request for this book. Check your{' '}
+                    <Link to="/student/my-requests" className="text-primary font-medium hover:underline">requests</Link>.
+                  </p>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => requestMutation.mutate()}
+                  disabled={requestMutation.isPending}
+                  className="gap-2"
+                  size="lg"
+                >
+                  <SendHorizontal className="h-4 w-4" />
+                  {requestMutation.isPending ? 'Submitting...' : 'Request to Borrow'}
+                </Button>
+              )
+            ) : !user ? (
+              <div className="p-4 bg-secondary/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  📚{' '}
+                  <Link to="/student/login" className="text-primary font-medium hover:underline">
+                    Sign in
+                  </Link>{' '}
+                  to request this book online, or visit the library with your student ID card.
+                </p>
+              </div>
+            ) : !isStudent ? (
+              <div className="p-4 bg-secondary/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  📚 To borrow this book, please visit the library with your student ID card.
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 bg-secondary/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  📚 This book is currently unavailable. Check back later!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

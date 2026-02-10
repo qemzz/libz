@@ -2,10 +2,18 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+interface StudentInfo {
+  id: string;
+  name: string;
+  student_id: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isStudent: boolean;
+  studentInfo: StudentInfo | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -18,6 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
+  const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
   const checkAdminStatus = async (userId: string) => {
@@ -39,32 +49,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const checkStudentStatus = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, name, student_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error || !data) return null;
+      return data as StudentInfo;
+    } catch {
+      return null;
+    }
+  };
+
+  const updateUserInfo = async (userId: string) => {
+    const [admin, student] = await Promise.all([
+      checkAdminStatus(userId),
+      checkStudentStatus(userId),
+    ]);
+    setIsAdmin(admin);
+    setIsStudent(!!student);
+    setStudentInfo(student);
+  };
+
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Defer admin check with setTimeout to avoid deadlock
         if (session?.user) {
-          setTimeout(() => {
-            checkAdminStatus(session.user.id).then(setIsAdmin);
-          }, 0);
+          setTimeout(() => updateUserInfo(session.user.id), 0);
         } else {
           setIsAdmin(false);
+          setIsStudent(false);
+          setStudentInfo(null);
         }
         setLoading(false);
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        checkAdminStatus(session.user.id).then(setIsAdmin);
+        updateUserInfo(session.user.id);
       }
       setLoading(false);
     });
@@ -90,10 +122,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setIsAdmin(false);
+    setIsStudent(false);
+    setStudentInfo(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isStudent, studentInfo, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
