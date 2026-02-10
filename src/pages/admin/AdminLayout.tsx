@@ -19,11 +19,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 
+import { Inbox } from 'lucide-react';
+
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { path: '/admin/books', icon: BookCopy, label: 'Manage Books' },
   { path: '/admin/students', icon: Users, label: 'Students' },
   { path: '/admin/borrowings', icon: ArrowLeftRight, label: 'Borrowings' },
+  { path: '/admin/requests', icon: Inbox, label: 'Borrow Requests' },
   { path: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
   { path: '/admin/categories', icon: Tag, label: 'Categories' },
   { path: '/admin/activity', icon: History, label: 'Activity Log' },

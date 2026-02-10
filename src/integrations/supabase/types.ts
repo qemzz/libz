@@ -133,6 +133,57 @@ export type Database = {
           },
         ]
       }
+      borrow_requests: {
+        Row: {
+          admin_notes: string | null
+          book_id: string
+          created_at: string
+          id: string
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["borrow_request_status"]
+          student_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          book_id: string
+          created_at?: string
+          id?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["borrow_request_status"]
+          student_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          book_id?: string
+          created_at?: string
+          id?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["borrow_request_status"]
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "borrow_requests_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "borrow_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       borrowings: {
         Row: {
           book_id: string
@@ -237,6 +288,7 @@ export type Database = {
           phone: string | null
           student_id: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           class_grade?: string | null
@@ -248,6 +300,7 @@ export type Database = {
           phone?: string | null
           student_id: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           class_grade?: string | null
@@ -259,6 +312,7 @@ export type Database = {
           phone?: string | null
           student_id?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -296,6 +350,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "librarian"
+      borrow_request_status: "pending" | "approved" | "rejected" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -424,6 +479,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "librarian"],
+      borrow_request_status: ["pending", "approved", "rejected", "cancelled"],
     },
   },
 } as const
