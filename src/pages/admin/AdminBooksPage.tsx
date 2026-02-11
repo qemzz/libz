@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Pencil, Trash2, Book, Star, Sparkles, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Book, Star, Sparkles, Search, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -218,8 +218,33 @@ function BookFormDialog({
     is_new_arrival: false,
     is_featured: false,
   });
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Please select an image file', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Image must be less than 5MB', variant: 'destructive' });
+      return;
+    }
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const clearCoverFile = () => {
+    setCoverFile(null);
+    setCoverPreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   useState(() => {
     if (book) {
@@ -280,8 +305,27 @@ function BookFormDialog({
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      let coverUrl = formData.cover_url;
+
+      // Upload cover file if selected
+      if (coverFile) {
+        setIsUploading(true);
+        const fileExt = coverFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('book-covers')
+          .upload(fileName, coverFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from('book-covers')
+          .getPublicUrl(fileName);
+        coverUrl = urlData.publicUrl;
+        setIsUploading(false);
+      }
+
       const payload = {
         ...formData,
+        cover_url: coverUrl || null,
         category_id: formData.category_id || null,
         available_quantity: book ? book.available_quantity : formData.quantity,
       };
@@ -299,6 +343,7 @@ function BookFormDialog({
       queryClient.invalidateQueries({ queryKey: ['books'] });
       toast({ title: book ? 'Book updated successfully' : 'Book added successfully' });
       onOpenChange(false);
+      clearCoverFile();
       resetForm();
     },
     onError: (error) => {
@@ -371,14 +416,53 @@ function BookFormDialog({
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="cover_url">Cover Image URL</Label>
-              <Input
-                id="cover_url"
-                type="url"
-                value={formData.cover_url}
-                onChange={(e) => setFormData({ ...formData, cover_url: e.target.value })}
-                placeholder="https://..."
-              />
+              <Label>Cover Image</Label>
+              <div className="space-y-3">
+                {/* File upload */}
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Browse Image
+                  </Button>
+                  {coverFile && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="truncate max-w-[150px]">{coverFile.name}</span>
+                      <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={clearCoverFile}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {/* Preview */}
+                {(coverPreview || formData.cover_url) && (
+                  <div className="w-20 h-28 rounded border border-border overflow-hidden">
+                    <img src={coverPreview || formData.cover_url} alt="Cover preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                {/* Fallback URL input */}
+                {!coverFile && (
+                  <Input
+                    id="cover_url"
+                    type="url"
+                    value={formData.cover_url}
+                    onChange={(e) => setFormData({ ...formData, cover_url: e.target.value })}
+                    placeholder="Or paste image URL..."
+                  />
+                )}
+              </div>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="description">Description</Label>
@@ -410,8 +494,8 @@ function BookFormDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'Saving...' : (book ? 'Update Book' : 'Add Book')}
+            <Button type="submit" disabled={saveMutation.isPending || isUploading}>
+              {isUploading ? 'Uploading...' : saveMutation.isPending ? 'Saving...' : (book ? 'Update Book' : 'Add Book')}
             </Button>
           </div>
         </form>
