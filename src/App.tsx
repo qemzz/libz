@@ -32,6 +32,7 @@ import AdminAnnouncementsPage from "@/pages/admin/AdminAnnouncementsPage";
 import AdminCategoriesPage from "@/pages/admin/AdminCategoriesPage";
 import AdminActivityPage from "@/pages/admin/AdminActivityPage";
 import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
+import AdminVisitsPage from "@/pages/admin/AdminVisitsPage";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="books" element={<AdminBooksPage />} />
                 <Route path="students" element={<AdminStudentsPage />} />
                 <Route path="borrowings" element={<AdminBorrowingsPage />} />
+                <Route path="visits" element={<AdminVisitsPage />} />
                 <Route path="requests" element={<AdminRequestsPage />} />
                 <Route path="announcements" element={<AdminAnnouncementsPage />} />
                 <Route path="categories" element={<AdminCategoriesPage />} />
