@@ -277,6 +277,44 @@ export type Database = {
         }
         Relationships: []
       }
+      library_visits: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          purpose: string | null
+          recorded_by: string | null
+          student_id: string
+          visited_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          purpose?: string | null
+          recorded_by?: string | null
+          student_id: string
+          visited_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          purpose?: string | null
+          recorded_by?: string | null
+          student_id?: string
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_visits_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           class_grade: string | null
