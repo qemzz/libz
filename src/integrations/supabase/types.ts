@@ -82,6 +82,7 @@ export type Database = {
           cover_url: string | null
           created_at: string
           description: string | null
+          file_url: string | null
           id: string
           is_featured: boolean
           is_new_arrival: boolean
@@ -98,6 +99,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          file_url?: string | null
           id?: string
           is_featured?: boolean
           is_new_arrival?: boolean
@@ -114,6 +116,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          file_url?: string | null
           id?: string
           is_featured?: boolean
           is_new_arrival?: boolean
