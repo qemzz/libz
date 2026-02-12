@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Pencil, Trash2, Book, Star, Sparkles, Search, Upload, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Book, Star, Sparkles, Search, Upload, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -213,6 +213,7 @@ function BookFormDialog({
     isbn: '',
     description: '',
     cover_url: '',
+    file_url: '',
     category_id: '',
     quantity: 1,
     is_new_arrival: false,
@@ -220,8 +221,10 @@ function BookFormDialog({
   });
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
+  const [bookFile, setBookFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bookFileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -254,6 +257,7 @@ function BookFormDialog({
         isbn: book.isbn || '',
         description: book.description || '',
         cover_url: book.cover_url || '',
+        file_url: (book as any).file_url || '',
         category_id: book.category_id || '',
         quantity: book.quantity,
         is_new_arrival: book.is_new_arrival,
@@ -266,6 +270,7 @@ function BookFormDialog({
         isbn: '',
         description: '',
         cover_url: '',
+        file_url: '',
         category_id: '',
         quantity: 1,
         is_new_arrival: false,
@@ -283,6 +288,7 @@ function BookFormDialog({
         isbn: book.isbn || '',
         description: book.description || '',
         cover_url: book.cover_url || '',
+        file_url: (book as any).file_url || '',
         category_id: book.category_id || '',
         quantity: book.quantity,
         is_new_arrival: book.is_new_arrival,
@@ -295,17 +301,21 @@ function BookFormDialog({
         isbn: '',
         description: '',
         cover_url: '',
+        file_url: '',
         category_id: '',
         quantity: 1,
         is_new_arrival: false,
         is_featured: false,
       });
     }
+    setBookFile(null);
+    if (bookFileInputRef.current) bookFileInputRef.current.value = '';
   };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       let coverUrl = formData.cover_url;
+      let fileUrl = formData.file_url;
 
       // Upload cover file if selected
       if (coverFile) {
@@ -320,12 +330,29 @@ function BookFormDialog({
           .from('book-covers')
           .getPublicUrl(fileName);
         coverUrl = urlData.publicUrl;
-        setIsUploading(false);
       }
+
+      // Upload book file (PDF) if selected
+      if (bookFile) {
+        setIsUploading(true);
+        const fileExt = bookFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('book-files')
+          .upload(fileName, bookFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from('book-files')
+          .getPublicUrl(fileName);
+        fileUrl = urlData.publicUrl;
+      }
+
+      setIsUploading(false);
 
       const payload = {
         ...formData,
         cover_url: coverUrl || null,
+        file_url: fileUrl || null,
         category_id: formData.category_id || null,
         available_quantity: book ? book.available_quantity : formData.quantity,
       };
@@ -461,6 +488,56 @@ function BookFormDialog({
                     onChange={(e) => setFormData({ ...formData, cover_url: e.target.value })}
                     placeholder="Or paste image URL..."
                   />
+                )}
+              </div>
+            </div>
+            {/* Soft Book (PDF) Upload */}
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Soft Book (PDF)</Label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={bookFileInputRef}
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 50 * 1024 * 1024) {
+                        toast({ title: 'File must be less than 50MB', variant: 'destructive' });
+                        return;
+                      }
+                      setBookFile(file);
+                    }}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => bookFileInputRef.current?.click()}
+                  >
+                    <FileText className="h-4 w-4" />
+                    Upload PDF
+                  </Button>
+                  {bookFile && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="truncate max-w-[150px]">{bookFile.name}</span>
+                      <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setBookFile(null); if (bookFileInputRef.current) bookFileInputRef.current.value = ''; }}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {formData.file_url && !bookFile && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span>Soft book uploaded</span>
+                    <Button type="button" variant="ghost" size="sm" className="text-destructive h-6 px-2" onClick={() => setFormData({ ...formData, file_url: '' })}>
+                      Remove
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>

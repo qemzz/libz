@@ -19,6 +19,7 @@ import NotFound from "@/pages/NotFound";
 import StudentLoginPage from "@/pages/student/StudentLoginPage";
 import StudentRegisterPage from "@/pages/student/StudentRegisterPage";
 import MyRequestsPage from "@/pages/student/MyRequestsPage";
+import ReadBookPage from "@/pages/student/ReadBookPage";
 
 // Admin Pages
 import AdminLoginPage from "@/pages/admin/AdminLoginPage";
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="/new-arrivals" element={<NewArrivalsPage />} />
                 <Route path="/popular" element={<PopularBooksPage />} />
                 <Route path="/student/my-requests" element={<MyRequestsPage />} />
+                <Route path="/books/:id/read" element={<ReadBookPage />} />
               </Route>
 
               {/* Student Auth Routes */}

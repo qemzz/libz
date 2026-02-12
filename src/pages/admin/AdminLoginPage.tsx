@@ -17,9 +17,16 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, isAdmin, user, loading } = useAuth();
+  const { signIn, signOut, isAdmin, user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Sign out any existing session when visiting admin login
+  useState(() => {
+    if (!isAdmin && user) {
+      signOut();
+    }
+  });
 
   // If already logged in as admin, redirect
   if (!loading && user && isAdmin) {

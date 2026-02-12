@@ -12,6 +12,7 @@ export interface Book {
   is_new_arrival: boolean;
   is_featured: boolean;
   times_borrowed: number;
+  file_url: string | null;
   created_at: string;
   updated_at: string;
   category?: Category;

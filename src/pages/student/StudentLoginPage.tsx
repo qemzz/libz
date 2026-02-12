@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,11 @@ export default function StudentLoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Sign out any existing session when visiting login page
+  useEffect(() => {
+    supabase.auth.signOut();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

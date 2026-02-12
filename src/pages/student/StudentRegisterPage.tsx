@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,11 @@ export default function StudentRegisterPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Sign out any existing session when visiting register page
+  useEffect(() => {
+    supabase.auth.signOut();
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

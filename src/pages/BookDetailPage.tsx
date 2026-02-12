@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Book, Calendar, Tag, Hash, SendHorizontal, Clock } from 'lucide-react';
+import { ArrowLeft, Book, Calendar, Tag, Hash, SendHorizontal, Clock, BookOpen } from 'lucide-react';
 import { useBook } from '@/hooks/useBooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -79,6 +79,7 @@ export default function BookDetailPage() {
   }
 
   const isAvailable = book.available_quantity > 0;
+  const hasDigitalVersion = !!(book as any).file_url;
 
   return (
     <div className="page-container">
@@ -167,6 +168,18 @@ export default function BookDetailPage() {
               <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                 {book.description}
               </p>
+            </div>
+          )}
+
+          {/* Read Online Button */}
+          {hasDigitalVersion && (
+            <div className="mt-6">
+              <Link to={`/books/${id}/read`}>
+                <Button variant="outline" size="lg" className="gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Read Online
+                </Button>
+              </Link>
             </div>
           )}
 
