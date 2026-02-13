@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Pencil, Trash2, Book, Star, Sparkles, Search, Upload, X, FileText } from 'lucide-react';
+import { Plus, Pencil, Trash2, Book, Star, Sparkles, Search, Upload, X, FileText, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Book as BookType, Category } from '@/lib/supabase-types';
+import { suggestDeweyNumber, getShelfLocation, DEWEY_CLASSES } from '@/lib/dewey-classification';
 
 export default function AdminBooksPage() {
   const [search, setSearch] = useState('');
@@ -218,6 +219,8 @@ function BookFormDialog({
     quantity: 1,
     is_new_arrival: false,
     is_featured: false,
+    dewey_number: '',
+    shelf_location: '',
   });
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
@@ -257,11 +260,13 @@ function BookFormDialog({
         isbn: book.isbn || '',
         description: book.description || '',
         cover_url: book.cover_url || '',
-        file_url: (book as any).file_url || '',
+        file_url: book.file_url || '',
         category_id: book.category_id || '',
         quantity: book.quantity,
         is_new_arrival: book.is_new_arrival,
         is_featured: book.is_featured,
+        dewey_number: book.dewey_number || '',
+        shelf_location: book.shelf_location || '',
       });
     } else {
       setFormData({
@@ -275,6 +280,8 @@ function BookFormDialog({
         quantity: 1,
         is_new_arrival: false,
         is_featured: false,
+        dewey_number: '',
+        shelf_location: '',
       });
     }
   });
@@ -288,11 +295,13 @@ function BookFormDialog({
         isbn: book.isbn || '',
         description: book.description || '',
         cover_url: book.cover_url || '',
-        file_url: (book as any).file_url || '',
+        file_url: book.file_url || '',
         category_id: book.category_id || '',
         quantity: book.quantity,
         is_new_arrival: book.is_new_arrival,
         is_featured: book.is_featured,
+        dewey_number: book.dewey_number || '',
+        shelf_location: book.shelf_location || '',
       });
     } else {
       setFormData({
@@ -306,11 +315,30 @@ function BookFormDialog({
         quantity: 1,
         is_new_arrival: false,
         is_featured: false,
+        dewey_number: '',
+        shelf_location: '',
       });
     }
     setBookFile(null);
     if (bookFileInputRef.current) bookFileInputRef.current.value = '';
   };
+
+  // Auto-suggest Dewey number when category changes
+  useEffect(() => {
+    if (formData.category_id && !formData.dewey_number) {
+      const cat = categories.find(c => c.id === formData.category_id);
+      if (cat) {
+        const suggested = suggestDeweyNumber(cat.name);
+        if (suggested) {
+          setFormData(prev => ({
+            ...prev,
+            dewey_number: suggested,
+            shelf_location: getShelfLocation(suggested),
+          }));
+        }
+      }
+    }
+  }, [formData.category_id]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -354,6 +382,8 @@ function BookFormDialog({
         cover_url: coverUrl || null,
         file_url: fileUrl || null,
         category_id: formData.category_id || null,
+        dewey_number: formData.dewey_number || null,
+        shelf_location: formData.dewey_number ? getShelfLocation(formData.dewey_number) : null,
         available_quantity: book ? book.available_quantity : formData.quantity,
       };
 
@@ -430,6 +460,35 @@ function BookFormDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            {/* Dewey Decimal Classification */}
+            <div className="space-y-2">
+              <Label htmlFor="dewey_number">Dewey Decimal #</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="dewey_number"
+                  value={formData.dewey_number}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, dewey_number: val, shelf_location: val ? getShelfLocation(val) : '' });
+                  }}
+                  placeholder="e.g. 510.2"
+                />
+                {formData.category_id && !formData.dewey_number && (
+                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-primary" title="Auto-suggest" onClick={() => {
+                    const cat = categories.find(c => c.id === formData.category_id);
+                    if (cat) {
+                      const suggested = suggestDeweyNumber(cat.name);
+                      if (suggested) setFormData(prev => ({ ...prev, dewey_number: suggested, shelf_location: getShelfLocation(suggested) }));
+                    }
+                  }}>
+                    <Lightbulb className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {formData.dewey_number && (
+                <p className="text-xs text-muted-foreground">📍 {getShelfLocation(formData.dewey_number)}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity *</Label>

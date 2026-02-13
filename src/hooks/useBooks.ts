@@ -2,23 +2,29 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Book, Category } from '@/lib/supabase-types';
 
-export function useBooks(searchQuery?: string, categoryId?: string) {
+export function useBooks(searchQuery?: string, categoryId?: string, deweyRange?: string) {
   return useQuery({
-    queryKey: ['books', searchQuery, categoryId],
+    queryKey: ['books', searchQuery, categoryId, deweyRange],
     queryFn: async () => {
       let query = supabase
         .from('books')
         .select('*, category:categories(*)');
 
       if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%,author.ilike.%${searchQuery}%,isbn.ilike.%${searchQuery}%`);
+        query = query.or(`title.ilike.%${searchQuery}%,author.ilike.%${searchQuery}%,isbn.ilike.%${searchQuery}%,dewey_number.ilike.%${searchQuery}%`);
       }
 
       if (categoryId) {
         query = query.eq('category_id', categoryId);
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      if (deweyRange) {
+        const rangeStart = deweyRange;
+        const rangeEnd = String(parseInt(deweyRange) + 99);
+        query = query.gte('dewey_number', rangeStart).lte('dewey_number', rangeEnd + '.999');
+      }
+
+      const { data, error } = await query.order('dewey_number', { ascending: true, nullsFirst: false });
       
       if (error) throw error;
       return data as (Book & { category: Category | null })[];
