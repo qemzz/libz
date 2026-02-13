@@ -1,12 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Book, Calendar, Tag, Hash, SendHorizontal, Clock, BookOpen } from 'lucide-react';
-import { useBook } from '@/hooks/useBooks';
+import { ArrowLeft, Book, Calendar, Tag, Hash, SendHorizontal, Clock, BookOpen, MapPin, Library } from 'lucide-react';
+import { useBook, useBooks } from '@/hooks/useBooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { getDeweyClassName, getShelfLocation } from '@/lib/dewey-classification';
+import { BookCard } from '@/components/BookCard';
 
 export default function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -79,7 +81,29 @@ export default function BookDetailPage() {
   }
 
   const isAvailable = book.available_quantity > 0;
-  const hasDigitalVersion = !!(book as any).file_url;
+  const hasDigitalVersion = !!book.file_url;
+
+  // Fetch books in same Dewey range for recommendations
+  const deweyBase = book.dewey_number ? book.dewey_number.substring(0, 1) : null;
+  const { data: relatedBooks } = useQuery({
+    queryKey: ['books-dewey-related', deweyBase, book.id],
+    queryFn: async () => {
+      if (!deweyBase) return [];
+      const rangeStart = `${deweyBase}00`;
+      const rangeEnd = `${deweyBase}99`;
+      const { data, error } = await supabase
+        .from('books')
+        .select('*, category:categories(*)')
+        .gte('dewey_number', rangeStart)
+        .lte('dewey_number', rangeEnd + '.999')
+        .neq('id', book.id)
+        .order('dewey_number')
+        .limit(4);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!deweyBase,
+  });
 
   return (
     <div className="page-container">
@@ -141,6 +165,25 @@ export default function BookDetailPage() {
                 <div>
                   <p className="text-xs uppercase tracking-wide">Category</p>
                   <p className="text-foreground font-medium">{book.category.name}</p>
+                </div>
+              </div>
+            )}
+            {book.dewey_number && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Library className="h-5 w-5" />
+                <div>
+                  <p className="text-xs uppercase tracking-wide">Dewey Decimal</p>
+                  <p className="text-foreground font-medium">{book.dewey_number}</p>
+                  <p className="text-xs text-muted-foreground">{getDeweyClassName(book.dewey_number)}</p>
+                </div>
+              </div>
+            )}
+            {book.dewey_number && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <MapPin className="h-5 w-5" />
+                <div>
+                  <p className="text-xs uppercase tracking-wide">Shelf Location</p>
+                  <p className="text-foreground font-medium">{book.shelf_location || getShelfLocation(book.dewey_number)}</p>
                 </div>
               </div>
             )}
@@ -231,6 +274,20 @@ export default function BookDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Related Books in Same Dewey Range */}
+      {relatedBooks && relatedBooks.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-4">
+            Related Books {book.dewey_number && <span className="text-base font-normal text-muted-foreground">({getDeweyClassName(book.dewey_number)})</span>}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {relatedBooks.map((b: any) => (
+              <BookCard key={b.id} book={b} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

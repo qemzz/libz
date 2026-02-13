@@ -4,15 +4,18 @@ import { BookCard } from '@/components/BookCard';
 import { useBooks, useCategories } from '@/hooks/useBooks';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
+import { DEWEY_CLASSES } from '@/lib/dewey-classification';
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const categoryParam = searchParams.get('category') || '';
+  const deweyParam = searchParams.get('dewey') || '';
   
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [selectedDewey, setSelectedDewey] = useState(deweyParam);
   
-  const { data: books, isLoading } = useBooks(query, selectedCategory);
+  const { data: books, isLoading } = useBooks(query, selectedCategory, selectedDewey);
   const { data: categories } = useCategories();
 
   const handleCategoryChange = (categoryId: string) => {
@@ -26,6 +29,17 @@ export default function SearchPage() {
     setSearchParams(params);
   };
 
+  const handleDeweyChange = (deweyRange: string) => {
+    setSelectedDewey(deweyRange);
+    const params = new URLSearchParams(searchParams);
+    if (deweyRange) {
+      params.set('dewey', deweyRange);
+    } else {
+      params.delete('dewey');
+    }
+    setSearchParams(params);
+  };
+
   return (
     <div className="page-container">
       <div className="mb-8">
@@ -34,7 +48,7 @@ export default function SearchPage() {
       </div>
 
       {/* Category Filter */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => handleCategoryChange('')}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -56,6 +70,34 @@ export default function SearchPage() {
             }`}
           >
             {category.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Dewey Decimal Filter */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        <button
+          onClick={() => handleDeweyChange('')}
+          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+            !selectedDewey 
+              ? 'bg-accent text-accent-foreground' 
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
+        >
+          All Dewey Classes
+        </button>
+        {DEWEY_CLASSES.map((dc) => (
+          <button
+            key={dc.range}
+            onClick={() => handleDeweyChange(dc.range.split('–')[0])}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              selectedDewey === dc.range.split('–')[0]
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+            title={dc.shelfLocation}
+          >
+            {dc.range} {dc.name.split(',')[0]}
           </button>
         ))}
       </div>
