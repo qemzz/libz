@@ -82,11 +82,14 @@ export type Database = {
           cover_url: string | null
           created_at: string
           description: string | null
+          dewey_number: string | null
+          file_url: string | null
           id: string
           is_featured: boolean
           is_new_arrival: boolean
           isbn: string | null
           quantity: number
+          shelf_location: string | null
           times_borrowed: number
           title: string
           updated_at: string
@@ -98,11 +101,14 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          dewey_number?: string | null
+          file_url?: string | null
           id?: string
           is_featured?: boolean
           is_new_arrival?: boolean
           isbn?: string | null
           quantity?: number
+          shelf_location?: string | null
           times_borrowed?: number
           title: string
           updated_at?: string
@@ -114,11 +120,14 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          dewey_number?: string | null
+          file_url?: string | null
           id?: string
           is_featured?: boolean
           is_new_arrival?: boolean
           isbn?: string | null
           quantity?: number
+          shelf_location?: string | null
           times_borrowed?: number
           title?: string
           updated_at?: string

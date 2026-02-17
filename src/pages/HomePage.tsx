@@ -38,7 +38,7 @@ export default function HomePage() {
               <span className="text-primary"> Great Read</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-8 animate-fade-in">
-              Explore our collection of thousands of books across all subjects and genres.
+              Explore our school collection of thousands of books across all subjects and genres.
             </p>
             <SearchBar className="max-w-2xl mx-auto animate-slide-up" />
           </div>
@@ -46,10 +46,16 @@ export default function HomePage() {
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-12">
             {[
+
               { icon: BookOpen, label: 'Total Books', value: '100,000+' },
               { icon: Users, label: 'Active Readers', value: '200+' },
               { icon: Clock, label: 'Open Hours', value: '8AM-5PM' },
               { icon: TrendingUp, label: 'Books Borrowed', value: '60,000+' },
+
+              { icon: BookOpen, label: 'Total Books', value: '15,000+' },
+              { icon: Users, label: 'Active Readers', value: '400+' },
+              { icon: Clock, label: 'Open Hours', value: '8AM-5PM' },
+              { icon: TrendingUp, label: 'Books Borrowed', value: '12,000+' },
             ].map((stat) => (
               <div key={stat.label} className="stat-card text-center animate-scale-in">
                 <stat.icon className="h-6 w-6 mx-auto text-primary mb-2" />
