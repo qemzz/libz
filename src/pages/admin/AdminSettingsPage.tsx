@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,10 +8,12 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Save } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['library-settings'],
@@ -70,14 +73,18 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Library Settings</h1>
-        <p className="text-muted-foreground">Configure library policies and defaults</p>
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">{t('settings.title')}</h1>
+        <p className="text-muted-foreground">{t('settings.subtitle')}</p>
+      </div>
+
+      <div className="card-elevated p-6 max-w-xl">
+        <LanguageSwitcher />
       </div>
 
       <div className="card-elevated p-6 max-w-xl">
         <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(); }} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="fine_per_day">Fine Per Day (for overdue books)</Label>
+            <Label htmlFor="fine_per_day">{t('settings.finePerDay')}</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <Input
@@ -90,11 +97,11 @@ export default function AdminSettingsPage() {
                 className="pl-8"
               />
             </div>
-            <p className="text-xs text-muted-foreground">Amount charged per day for overdue books</p>
+            <p className="text-xs text-muted-foreground">{t('settings.finePerDayHint')}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="max_borrow_days">Default Borrowing Period (days)</Label>
+            <Label htmlFor="max_borrow_days">{t('settings.borrowingPeriod')}</Label>
             <Input
               id="max_borrow_days"
               type="number"
@@ -103,11 +110,11 @@ export default function AdminSettingsPage() {
               value={getValue('max_borrow_days')}
               onChange={(e) => setFormData({ ...formData, max_borrow_days: e.target.value })}
             />
-            <p className="text-xs text-muted-foreground">Default number of days a book can be borrowed</p>
+            <p className="text-xs text-muted-foreground">{t('settings.borrowingPeriodHint')}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="max_books_per_student">Max Books Per Student</Label>
+            <Label htmlFor="max_books_per_student">{t('settings.maxBooks')}</Label>
             <Input
               id="max_books_per_student"
               type="number"
@@ -116,12 +123,12 @@ export default function AdminSettingsPage() {
               value={getValue('max_books_per_student')}
               onChange={(e) => setFormData({ ...formData, max_books_per_student: e.target.value })}
             />
-            <p className="text-xs text-muted-foreground">Maximum number of books a student can borrow at once</p>
+            <p className="text-xs text-muted-foreground">{t('settings.maxBooksHint')}</p>
           </div>
 
           <Button type="submit" disabled={saveMutation.isPending} className="gap-2">
             <Save className="h-4 w-4" />
-            {saveMutation.isPending ? 'Saving...' : 'Save Settings'}
+            {saveMutation.isPending ? t('settings.saving') : t('settings.save')}
           </Button>
         </form>
       </div>
