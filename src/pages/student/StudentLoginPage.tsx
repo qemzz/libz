@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BookOpen, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ export default function StudentLoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Sign out any existing session when visiting login page
   useEffect(() => {
@@ -32,16 +34,16 @@ export default function StudentLoginPage() {
 
       if (error) {
         toast({
-          title: 'Login failed',
-          description: 'Invalid Student ID or password.',
+          title: t('auth.loginFailed'),
+          description: t('auth.invalidCreds'),
           variant: 'destructive',
         });
       } else {
-        toast({ title: 'Welcome back!' });
+        toast({ title: t('auth.welcomeBack') });
         navigate('/');
       }
     } catch {
-      toast({ title: 'Error', description: 'Something went wrong.', variant: 'destructive' });
+      toast({ title: t('auth.error'), description: t('auth.somethingWrong'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -56,51 +58,51 @@ export default function StudentLoginPage() {
               <BookOpen className="h-7 w-7 text-primary-foreground" />
             </div>
           </Link>
-          <h1 className="text-3xl font-serif font-bold text-foreground">Student Login</h1>
-          <p className="text-muted-foreground mt-2">Sign in to request books online</p>
+          <h1 className="text-3xl font-serif font-bold text-foreground">{t('auth.studentLogin')}</h1>
+          <p className="text-muted-foreground mt-2">{t('auth.studentLoginSubtitle')}</p>
         </div>
 
         <div className="card-elevated p-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="studentId">Student ID</Label>
+              <Label htmlFor="studentId">{t('auth.studentId')}</Label>
               <Input
                 id="studentId"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                placeholder="Enter your Student ID"
+                placeholder={t('auth.studentIdPlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('auth.passwordPlaceholder')}
                 required
                 minLength={6}
               />
             </div>
             <Button type="submit" className="w-full gap-2" disabled={loading}>
               <LogIn className="h-4 w-4" />
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('auth.signingIn') : t('nav.signIn')}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link to="/student/register" className="text-primary font-medium hover:underline">
-              Register here
+              {t('auth.registerHere')}
             </Link>
           </div>
         </div>
 
         <div className="text-center mt-4">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Back to Library
+            {t('nav.backToLibrary')}
           </Link>
         </div>
       </div>
