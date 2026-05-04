@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "browseBooks": "Parcourir les livres",
+    "newArrivals": "Nouveautés",
+    "popular": "Populaires",
+    "myRequests": "Mes demandes",
+    "adminPanel": "Panneau d'administration",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "backToLibrary": "← Retour à la bibliothèque"
+  },
+  "home": {
+    "heroTitle": "Découvrez votre prochaine",
+    "heroAccent": "belle lecture",
+    "heroSubtitle": "Explorez notre collection scolaire de milliers de livres dans toutes les matières et tous les genres.",
+    "totalBooks": "Livres au total",
+    "activeReaders": "Lecteurs actifs",
+    "openHours": "Heures d'ouverture",
+    "booksBorrowed": "Livres empruntés",
+    "announcements": "Annonces de la bibliothèque",
+    "featured": "Livres en vedette",
+    "newArrivals": "Nouveautés",
+    "popular": "Les plus populaires",
+    "viewAll": "Voir tout",
+    "noNewArrivals": "Aucune nouveauté pour le moment. Revenez bientôt !",
+    "noPopular": "Aucune donnée sur les livres populaires."
+  },
+  "search": {
+    "title": "Parcourir les livres",
+    "allCategories": "Toutes les catégories",
+    "allDewey": "Toutes les classes Dewey",
+    "searching": "Recherche...",
+    "foundResults": "{{count}} résultats trouvés pour \"{{query}}\"",
+    "noBooks": "Aucun livre trouvé. Essayez un autre terme ou catégorie."
+  },
+  "auth": {
+    "studentLogin": "Connexion étudiant",
+    "studentLoginSubtitle": "Connectez-vous pour demander des livres en ligne",
+    "studentId": "Identifiant étudiant",
+    "studentIdPlaceholder": "Entrez votre identifiant étudiant",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "signingIn": "Connexion...",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "registerHere": "Inscrivez-vous ici",
+    "welcomeBack": "Bon retour !",
+    "loginFailed": "Échec de la connexion",
+    "invalidCreds": "Identifiant ou mot de passe invalide.",
+    "error": "Erreur",
+    "somethingWrong": "Une erreur s'est produite."
+  },
+  "settings": {
+    "title": "Paramètres de la bibliothèque",
+    "subtitle": "Configurer les politiques et les valeurs par défaut",
+    "finePerDay": "Amende par jour (livres en retard)",
+    "finePerDayHint": "Montant facturé par jour pour les livres en retard",
+    "borrowingPeriod": "Période d'emprunt par défaut (jours)",
+    "borrowingPeriodHint": "Nombre de jours par défaut pour emprunter un livre",
+    "maxBooks": "Livres max par étudiant",
+    "maxBooksHint": "Nombre maximum de livres qu'un étudiant peut emprunter à la fois",
+    "save": "Enregistrer les paramètres",
+    "saving": "Enregistrement...",
+    "language": "Langue",
+    "languageHint": "Choisissez la langue d'affichage de l'application",
+    "english": "Anglais",
+    "french": "Français"
+  },
+  "common": {
+    "schoolLibrary": "Bibliothèque scolaire"
+  }
+}

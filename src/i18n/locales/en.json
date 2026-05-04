@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "home": "Home",
+    "browseBooks": "Browse Books",
+    "newArrivals": "New Arrivals",
+    "popular": "Popular",
+    "myRequests": "My Requests",
+    "adminPanel": "Admin Panel",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "backToLibrary": "← Back to Library"
+  },
+  "home": {
+    "heroTitle": "Discover Your Next",
+    "heroAccent": "Great Read",
+    "heroSubtitle": "Explore our school collection of thousands of books across all subjects and genres.",
+    "totalBooks": "Total Books",
+    "activeReaders": "Active Readers",
+    "openHours": "Open Hours",
+    "booksBorrowed": "Books Borrowed",
+    "announcements": "Library Announcements",
+    "featured": "Featured Books",
+    "newArrivals": "New Arrivals",
+    "popular": "Most Popular",
+    "viewAll": "View All",
+    "noNewArrivals": "No new arrivals yet. Check back soon!",
+    "noPopular": "No popular books data yet."
+  },
+  "search": {
+    "title": "Browse Books",
+    "allCategories": "All Categories",
+    "allDewey": "All Dewey Classes",
+    "searching": "Searching...",
+    "foundResults": "Found {{count}} results for \"{{query}}\"",
+    "noBooks": "No books found. Try a different search term or category."
+  },
+  "auth": {
+    "studentLogin": "Student Login",
+    "studentLoginSubtitle": "Sign in to request books online",
+    "studentId": "Student ID",
+    "studentIdPlaceholder": "Enter your Student ID",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "registerHere": "Register here",
+    "welcomeBack": "Welcome back!",
+    "loginFailed": "Login failed",
+    "invalidCreds": "Invalid Student ID or password.",
+    "error": "Error",
+    "somethingWrong": "Something went wrong."
+  },
+  "settings": {
+    "title": "Library Settings",
+    "subtitle": "Configure library policies and defaults",
+    "finePerDay": "Fine Per Day (for overdue books)",
+    "finePerDayHint": "Amount charged per day for overdue books",
+    "borrowingPeriod": "Default Borrowing Period (days)",
+    "borrowingPeriodHint": "Default number of days a book can be borrowed",
+    "maxBooks": "Max Books Per Student",
+    "maxBooksHint": "Maximum number of books a student can borrow at once",
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "language": "Language",
+    "languageHint": "Choose the display language for the application",
+    "english": "English",
+    "french": "French"
+  },
+  "common": {
+    "schoolLibrary": "School Library"
+  }
+}
