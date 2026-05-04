@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen, Users, Clock, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SearchBar } from '@/components/SearchBar';
 import { BookCard } from '@/components/BookCard';
 import { AnnouncementBanner } from '@/components/AnnouncementBanner';
@@ -22,6 +23,7 @@ function BookGridSkeleton() {
 }
 
 export default function HomePage() {
+  const { t } = useTranslation();
   const { data: newArrivals, isLoading: loadingNew } = useNewArrivals();
   const { data: featured, isLoading: loadingFeatured } = useFeaturedBooks();
   const { data: popular, isLoading: loadingPopular } = usePopularBooks();
@@ -34,11 +36,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-10">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 animate-fade-in">
-              Discover Your Next
-              <span className="text-primary"> Great Read</span>
+              {t('home.heroTitle')}
+              <span className="text-primary"> {t('home.heroAccent')}</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-8 animate-fade-in">
-              Explore our school collection of thousands of books across all subjects and genres.
+              {t('home.heroSubtitle')}
             </p>
             <SearchBar className="max-w-2xl mx-auto animate-slide-up" />
           </div>
@@ -46,16 +48,10 @@ export default function HomePage() {
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-12">
             {[
-
-              { icon: BookOpen, label: 'Total Books', value: '100,000+' },
-              { icon: Users, label: 'Active Readers', value: '200+' },
-              { icon: Clock, label: 'Open Hours', value: '8AM-5PM' },
-              { icon: TrendingUp, label: 'Books Borrowed', value: '60,000+' },
-
-              { icon: BookOpen, label: 'Total Books', value: '15,000+' },
-              { icon: Users, label: 'Active Readers', value: '400+' },
-              { icon: Clock, label: 'Open Hours', value: '8AM-5PM' },
-              { icon: TrendingUp, label: 'Books Borrowed', value: '12,000+' },
+              { icon: BookOpen, label: t('home.totalBooks'), value: '100,000+' },
+              { icon: Users, label: t('home.activeReaders'), value: '200+' },
+              { icon: Clock, label: t('home.openHours'), value: '8AM-5PM' },
+              { icon: TrendingUp, label: t('home.booksBorrowed'), value: '60,000+' },
             ].map((stat) => (
               <div key={stat.label} className="stat-card text-center animate-scale-in">
                 <stat.icon className="h-6 w-6 mx-auto text-primary mb-2" />
