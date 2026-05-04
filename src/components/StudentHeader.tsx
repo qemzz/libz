@@ -4,18 +4,19 @@ import { ThemeToggle } from './ThemeToggle';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from './ui/button';
-
-const navLinks = [
-  { path: '/', label: 'Home' },
-  { path: '/search', label: 'Browse Books' },
-  { path: '/new-arrivals', label: 'New Arrivals' },
-  { path: '/popular', label: 'Popular' },
-];
+import { useTranslation } from 'react-i18next';
 
 export function StudentHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, isAdmin, isStudent, studentInfo, signOut } = useAuth();
+  const { t } = useTranslation();
+  const navLinks = [
+    { path: '/', label: t('nav.home') },
+    { path: '/search', label: t('nav.browseBooks') },
+    { path: '/new-arrivals', label: t('nav.newArrivals') },
+    { path: '/popular', label: t('nav.popular') },
+  ];
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -27,7 +28,7 @@ export function StudentHeader() {
               <BookOpen className="h-6 w-6 text-primary-foreground" />
             </div>
             <span className="font-serif font-bold text-xl text-foreground hidden sm:block">
-              School Library
+              {t('common.schoolLibrary')}
             </span>
           </Link>
 
@@ -53,7 +54,7 @@ export function StudentHeader() {
                   location.pathname === '/student/my-requests' ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
-                My Requests
+                {t('nav.myRequests')}
               </Link>
             )}
           </nav>
@@ -64,7 +65,7 @@ export function StudentHeader() {
             {isAdmin && (
               <Link to="/admin">
                 <Button variant="outline" size="sm">
-                  Admin Panel
+                  {t('nav.adminPanel')}
                 </Button>
               </Link>
             )}
@@ -80,7 +81,7 @@ export function StudentHeader() {
               <Link to="/student/login">
                 <Button variant="outline" size="sm" className="gap-1.5">
                   <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sign In</span>
+                  <span className="hidden sm:inline">{t('nav.signIn')}</span>
                 </Button>
               </Link>
             )}
@@ -123,13 +124,13 @@ export function StudentHeader() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block py-2 text-sm font-medium text-muted-foreground hover:text-primary"
                 >
-                  My Requests
+                  {t('nav.myRequests')}
                 </Link>
                 <button
                   onClick={() => { signOut(); setMobileMenuOpen(false); }}
                   className="block py-2 text-sm font-medium text-destructive hover:text-destructive/80 w-full text-left"
                 >
-                  Sign Out ({studentInfo?.name})
+                  {t('nav.signOut')} ({studentInfo?.name})
                 </button>
               </>
             )}
@@ -139,7 +140,7 @@ export function StudentHeader() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="block py-2 text-sm font-medium text-primary"
               >
-                Sign In
+                {t('nav.signIn')}
               </Link>
             )}
           </nav>
