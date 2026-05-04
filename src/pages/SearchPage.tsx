@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SearchBar } from '@/components/SearchBar';
 import { BookCard } from '@/components/BookCard';
 import { useBooks, useCategories } from '@/hooks/useBooks';
@@ -7,6 +8,7 @@ import { useState } from 'react';
 import { DEWEY_CLASSES } from '@/lib/dewey-classification';
 
 export default function SearchPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const categoryParam = searchParams.get('category') || '';
@@ -43,7 +45,7 @@ export default function SearchPage() {
   return (
     <div className="page-container">
       <div className="mb-8">
-        <h1 className="section-title mb-4">Browse Books</h1>
+        <h1 className="section-title mb-4">{t('search.title')}</h1>
         <SearchBar className="max-w-2xl" />
       </div>
 
@@ -57,7 +59,7 @@ export default function SearchPage() {
               : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
           }`}
         >
-          All Categories
+          {t('search.allCategories')}
         </button>
         {categories?.map((category) => (
           <button
@@ -84,7 +86,7 @@ export default function SearchPage() {
               : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
-          All Dewey Classes
+          {t('search.allDewey')}
         </button>
         {DEWEY_CLASSES.map((dc) => (
           <button
@@ -105,7 +107,7 @@ export default function SearchPage() {
       {/* Results */}
       {query && (
         <p className="text-muted-foreground mb-4">
-          {isLoading ? 'Searching...' : `Found ${books?.length || 0} results for "${query}"`}
+          {isLoading ? t('search.searching') : t('search.foundResults', { count: books?.length || 0, query })}
         </p>
       )}
 
@@ -127,7 +129,7 @@ export default function SearchPage() {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No books found. Try a different search term or category.</p>
+          <p className="text-muted-foreground">{t('search.noBooks')}</p>
         </div>
       )}
     </div>
