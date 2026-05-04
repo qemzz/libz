@@ -67,7 +67,7 @@ export default function HomePage() {
         {/* Announcements */}
         {announcements && announcements.length > 0 && (
           <section className="animate-slide-up">
-            <h2 className="section-title mb-4">Library Announcements</h2>
+            <h2 className="section-title mb-4">{t('home.announcements')}</h2>
             <AnnouncementBanner announcements={announcements} />
           </section>
         )}
@@ -76,7 +76,7 @@ export default function HomePage() {
         {featured && featured.length > 0 && (
           <section className="animate-slide-up">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="section-title">Featured Books</h2>
+              <h2 className="section-title">{t('home.featured')}</h2>
             </div>
             {loadingFeatured ? (
               <BookGridSkeleton />
@@ -93,12 +93,12 @@ export default function HomePage() {
         {/* New Arrivals */}
         <section className="animate-slide-up">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="section-title">New Arrivals</h2>
+            <h2 className="section-title">{t('home.newArrivals')}</h2>
             <Link 
               to="/new-arrivals" 
               className="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              {t('home.viewAll')} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           {loadingNew ? (
@@ -110,19 +110,19 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No new arrivals yet. Check back soon!</p>
+            <p className="text-muted-foreground">{t('home.noNewArrivals')}</p>
           )}
         </section>
 
         {/* Popular Books */}
         <section className="animate-slide-up">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="section-title">Most Popular</h2>
+            <h2 className="section-title">{t('home.popular')}</h2>
             <Link 
               to="/popular" 
               className="text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all"
             >
-              View All <ArrowRight className="h-4 w-4" />
+              {t('home.viewAll')} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           {loadingPopular ? (
@@ -134,7 +134,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No popular books data yet.</p>
+            <p className="text-muted-foreground">{t('home.noPopular')}</p>
           )}
         </section>
       </div>
